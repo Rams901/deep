@@ -63,11 +63,11 @@ class BottomNavItem extends StatelessWidget {
         children: <Widget>[
           SvgPicture.asset(
             svgScr,
-            color: isActive ? kActiveIconColor : kTextColor,
+            color:  kTextColor,
           ),
           Text(
             title,
-            style: TextStyle(color: isActive ? kActiveIconColor : kTextColor),
+            style: TextStyle(color: kTextColor),
           ),
         ],
       ),

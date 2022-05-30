@@ -19,3 +19,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+# Need to try adding elements to server.
+#Need to try calling the fetch fetch to grab the list of all quotes
+#add the subtraction list (with Random state or not)
+#Showcase a quote when page change. (jawna behy <3)

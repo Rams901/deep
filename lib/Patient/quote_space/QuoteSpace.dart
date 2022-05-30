@@ -1,15 +1,31 @@
-
 import 'dart:math';
-
+import 'dart:ui';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter/material.dart';
-import 'package:deeptherapy/Patient/widgets/constants.dart';
+import '../../repository/quote_repository.dart';
+import '../../models/quote.dart';
+import 'package:deeptherapy/constants.dart';
+import '../../models/failure_model.dart';
 import 'package:deeptherapy/Patient/widgets/bottom_nav_bar.dart';
-import 'package:flutter_clean_calendar/flutter_clean_calendar.dart';
-class QuoteApp extends StatefulWidget {
+// import 'package:flutter_clean_calendar/flutter_clean_calendar.dart';
+// import 'package:table_calendar/table_calendar.dart';
+import '../widgets/calendar.dart';
+import '../widgets/utils.dart';
+class QuoteApp extends StatefulHookWidget {
   @override
   _QuoteAppState createState() => _QuoteAppState();
 }
-
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  // Override behavior methods and getters like dragDevices
+  
+  @override
+  Set<PointerDeviceKind> get dragDevices => { 
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+    // etc.
+  };
+}
 //Notes:
 //1- History for quotes last 1 year.
 //2- Scroll to previous days (quotes) or click on day.
@@ -19,38 +35,68 @@ class QuoteApp extends StatefulWidget {
 //6- first five days will have general quotes
 //7- database(quote, date, shown (bool)) 
 
+// CASE CLOSED CHANGE TO TABLE CALENDAR AND WORK FROM SCRATCH THERE.
+//started again with reformulated design. It's better
+//what is left:
+//starting at the last quote with datetime now and can only go back from or go scroll right till datetime now.
+//creating the backend model, can get inspired from quiz app.
+
+
+//LEFT TO DO, change the colors. Wait for patient to have class to change the variable + start day.
+typedef CalendarCallback = void Function(DateTime date);
+
+ final quotesProvider = FutureProvider.autoDispose<List<Quote>>(
+    (ref) => ref.watch(quoteRepositoryProvider).getQuotes(
+          quota: 10, //change to datetime.now() - start_day (access from profile)
+          q_class: "Depression", //Change to user class.
+        //category value + remove difficulty
+        ),
+  );
 class _QuoteAppState extends State<QuoteApp> {
     
-  Random random = new Random();
+final months = ["Jan","Feb","Mars", "April", "May", "June", "July", "August","Sep", "Oct", "Nov", "Dec"];
+Random random = new Random();
 int index = 0;
-
+int col_index = 0;
   void changeIndex() {
-    setState(() => index = random.nextInt(3));
+    setState(() => col_index = random.nextInt(3));
   }
 
-  final _list = Quote.generateQuoteBlog();
+int initial_index = 0;
+final ScrollController controller = ScrollController();
+Color testc = Colors.black;
+
+  // final _list = Quote.generateQuoteBlog();
   final _pageCtrl = PageController(viewportFraction: 0.9);
 
-  DateTime? selectedDay;
+  DateTime? selectedDay = DateTime.now();
   List? selectedEvent;
+  
 
-  final Map<DateTime, List<CleanCalendarEvent>> events = {
-    DateTime(2020,12,12): [
-      {'Name': 'Your event Name', 'isDone' : true},
-      {'Name': 'Your event Name 2', 'isDone' : true},
-      {'Name': 'Your event Name 3', 'isDone' : false},
-    ].cast<CleanCalendarEvent>(),
-    DateTime(2020,12,2): [
-      {'Name': 'Your event Name', 'isDone' : false},
-      {'Name': 'Your event Name 2', 'isDone' : true},
-      {'Name': 'Your event Name 3', 'isDone' : false},
-    ].cast<CleanCalendarEvent>()
-  };
-
+  Color generate_background_color( index){
+    
+    print(index);
+   
+    List colors = [
+      Color(0xFFFFF1E4),
+      Color(0xFFFFDAB9),
+      Color(0xFF68A3FF),
+      Color(0xFF002366),
+      Color(0xFF0F52BA),
+     ];
+    return colors[index%5];
+  }
+  Color generate_text_color(index){
+    List colors = [Color(0xFF979797),
+    Color(0xFF979797),
+    Colors.white,Colors.white,Colors.white, Colors.white
+    ];
+    return colors[index%5];
+  }
   void _handleData(date){
     setState(() {
       selectedDay = date;
-      selectedEvent = events[selectedDay] ?? [];
+      print(selectedEvent);
     });
     print(selectedDay);
   }
@@ -58,14 +104,21 @@ int index = 0;
   @override
   void initState() {
     // TODO: implement initState
-    selectedEvent = events[selectedDay] ?? [];
+     
+    //selectedEvent = events[selectedDay] ?? [];
+    
     super.initState();
   }
+ 
 
   @override
   Widget build(BuildContext context) {
-    
-      var quote = _list[index];
+      final quotes = useProvider(quotesProvider);
+      DateTime _focusedDay = DateTime.now();
+      DateTime? _selectedDay;
+ 
+      
+      
     return Scaffold(
      bottomNavigationBar: BottomNavBar(),
 
@@ -84,7 +137,7 @@ int index = 0;
     radius: 35.0,
     child: ClipRRect(
       
-          child: Image.asset("assets/images/user.png"),
+          child: Image.asset("lib/assets/images/user.png"),
           borderRadius: BorderRadius.circular(30.0),
    )),
            ),
@@ -92,52 +145,62 @@ int index = 0;
           
 
     ), 
-      body: SafeArea( 
+      body: quotes.when(data:(quotes_grabbed,)=> _buildBody(context, quotes_grabbed),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, _) => QuoteError(message: error is Failure ? error.message : 'Something went wrong!',
+          ),
+          ),
+          );}
+
+Widget _buildBody( BuildContext context,
+    List<Quote> quotes,)
+    {
+          return SafeArea( 
        child: 
        Padding(
          padding: const EdgeInsets.all(15.0),
-         child: Column(children: <Widget>[
-           Container(
-              width: 500,
-              height: 150,
-             child:Calendar(
-                startOnMonday: true,
-                selectedColor: Colors.blue,
-                todayColor: Colors.red,
-               
-                onRangeSelected: (range){
-                  print('Selected Day ${range.from}, ${range.to}');
-                },
-                onDateSelected: (date){
-                  return _handleData(date);
-                },
-                events: events,
-                isExpanded:false,
-                dayOfWeekStyle: TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF979797),
-                  fontWeight: FontWeight.w900,
-                ),
-               
-                hideBottomBar: false,
-                isExpandable: false,
-                hideArrows: false,
-                weekDays: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+         child: 
+           
 
-                
-              ),
-            ),
-            
-Container(width: 350,height:330,child: PageView.builder(
+           Container(child: ScrollConfiguration(
+  behavior: MyCustomScrollBehavior(),
+  
+  child: Stack(children: [PageView.builder(scrollDirection: Axis.horizontal,
       controller: _pageCtrl,
-      itemCount: _list.length,
+      reverse:true,
+      onPageChanged: (int x ){print(x);
+      // TRY TO ACCESS THE VARIABLES COLORS WHEN BUILDING. THE COLOR CHANGE BUT THE TAPPING IS STILL NOT HAPPENING. builder is not activated. 
+      //(int ) { print(selectedDay);
+        print(index);
+        print(selectedDay);
+        setState((){
+        // selectedDay.value = selectedDay.value.add(Duration(days: 1));
+        
+        if((x - index) <0) selectedDay = selectedDay?.add(Duration(days: 1));
+        if((x - index) > 0) selectedDay = selectedDay?.subtract(Duration(days:1));
+        
+        index = x;
+        
+        print(selectedDay);
+        // yo.onDaySelected!(_selectedDay!, _focusedDay);
+
+        //           _handleData(selectedDay!.add(Duration(days: 1)));
+        //         };
+       
+      //   print(selectedDay);
+        
+      });}
+        /// TO DO, SELECT THE DAY ACCORDING TO THE PAGEEEEEEE.
+        /// UNEXPECTED NULL VALUE FOR THE DAY BUILDER/ CHANGING THE SELECTED DAYS ARE STRONGLY CORRELATED TO THE HANDLE SELECTED DATE AND USER CALLBACK
+      ,
+      itemCount: quotes.length,
       itemBuilder: (context,index){
-        return Container(
+        return  Container(
               
-               width: 500,
-               height: 320,
-         color:quote.colors[index],
-       child: Positioned(
+               
+               
+         color:generate_background_color(index),
+       
          
           child: Column(
       
@@ -147,11 +210,12 @@ Container(width: 350,height:330,child: PageView.builder(
                 child:
                 Padding(
                   padding: const EdgeInsets.only(right:170,top:25),
-                  child: Text(quote.date,
+                  child: Text(months[selectedDay!.month-1]+ " " + selectedDay!.day.toString() + "\n" + selectedDay!.year.toString(),
                   style:TextStyle(
-                    color:Colors.white,fontWeight: FontWeight.w600,
+                    color:generate_text_color(index),fontWeight: FontWeight.w600,
                     fontSize: 15)),
                 )),
+                
               
               
                    Padding(
@@ -159,11 +223,11 @@ Container(width: 350,height:330,child: PageView.builder(
                      child: Material(
                 color:Colors.transparent,
                 
-                  child: Text(quote.quotes[index],textAlign:TextAlign.center,
+                  child: Container(child: Text(quotes[index].text,textAlign:TextAlign.center,
                   style:
-                  TextStyle(color:Color(0xFF979797),fontWeight:FontWeight.bold,fontSize: 20)
+                  TextStyle(color:generate_text_color(index),fontWeight:FontWeight.bold,fontSize: 20)
                       ),
-                
+                  )
                   ),
                    ),
   
@@ -171,18 +235,90 @@ Container(width: 350,height:330,child: PageView.builder(
                    color: Colors.transparent,
                  child: IconButton(
             icon:  Icon(Icons.favorite_border),
-            color: Color(0xFF979797),iconSize: 35,
+            color: generate_text_color(index),iconSize: 35,
             onPressed: () {},
           ),
           ),       
           ],
           )
-        ),
-             );})
-)]),
-       ),
+        ,
+             );
+      }),Align(alignment: AlignmentDirectional.centerStart,child:Icon(Icons.arrow_back_ios)),Align(alignment: AlignmentDirectional.centerEnd,child:Icon(Icons.arrow_forward_ios))]
+      )
+      )
+       ))
+      );}
+      
+      
+           
+         
+         
+      
+         
+}
+
+class QuoteError extends StatelessWidget {
+  final String? message;
+
+  const QuoteError({
+    Key? key,
+    @required this.message,
+  }) : super(key: key);@override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            message!,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 20.0,
+            ),
           ),
-            
-      ); 
+          const SizedBox(height: 20.0),
+          CustomButton(
+            title: 'Retry',
+            onTap: () => context.refresh(quoteRepositoryProvider),
+          ),
+        ],
+      ),
+    );
+  }
+}
+//Problem is in the api function, there was throw error here.
+class CustomButton extends StatelessWidget {
+  final String? title;
+  final VoidCallback? onTap;
+
+  const CustomButton({
+    Key? key,
+    @required this.title,
+    @required this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.all(20.0),
+        height: 50.0,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.yellow[700],
+         
+          borderRadius: BorderRadius.circular(25.0),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          title!,
+          style: const TextStyle(
+            fontSize: 18.0,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
   }
 }

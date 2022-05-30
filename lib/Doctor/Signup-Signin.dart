@@ -1,7 +1,7 @@
 import 'package:deeptherapy/repository/user_repository.dart';
 import 'package:flutter/material.dart';
-import '../Login/login_page.dart';
-import 'SignupDoc1.dart';
+import 'Login/login_page.dart';
+import 'Signup/SignupDoc2.dart';
 import 'package:deeptherapy/bloc/authentication_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -76,7 +76,7 @@ color: Colors.black54,fontSize: 25),
                  
             Navigator.push(
     context,
-    MaterialPageRoute(builder: (context) => const SignUpDoc1()),
+    MaterialPageRoute(builder: (context) => const SignupDoc2()),
   );
          
                 

@@ -1,6 +1,6 @@
 import 'package:deeptherapy/repository/user_repository.dart';
 import 'package:flutter/material.dart';
-import 'Doctor/Signup/Signup-Signin.dart';
+import 'Doctor/Signup-Signin.dart';
 import 'splash/splash.dart';
 
 class Welcome  extends StatelessWidget {

@@ -30,9 +30,9 @@ SECRET_KEY = 'r-^eqs9+ui^8v18vy)tuz@x54#y=@&-f@)7!i04xjp!@1$7hza'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.0.2.2', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
-
+USE_X_FORWARDED_HOST = True
 # Application definition
 # AUTH_USER_MODEL='UserManagement.Users'
 
@@ -78,6 +78,8 @@ TEMPLATES = [
     },
 ]
 
+
+#Need to understand how to control when to get authenticated when not, 
 WSGI_APPLICATION = 'deeptherapy.wsgi.application'
 
 
@@ -85,20 +87,31 @@ WSGI_APPLICATION = 'deeptherapy.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+   'default': {
+       'ENGINE': 'django.db.backends.postgresql',
+       'NAME': "d9qvfai94dto79",
+       'USER': 'udeiwhsyomocvp',
+       'PASSWORD': 'e42c3c26ed0db04ed71a4d7a97af67561a51785ef4e02b5548f1b76f8a22fe85',
+       'HOST': 'ec2-18-214-134-226.compute-1.amazonaws.com',
+       'PORT': '5432',
+   }
 }
+
+#restore db, or completly erase the db as well and check
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
-'DEFAULT_PERMISSION_CLASSES': [
-    'rest_framework.permissions.IsAuthenticated',
-]
 }
+AUTH_USER_MODEL= "doctors.User"
+ACCOUNT_UNIQUE_EMAIL = True
+# make migrations using heroku, delete everything, check stack for columns thingy. Recheck syntax. Flushing, 
+#Change into postgres locally.
+#Solvedd. Resetting worked like a charm.
+#What's left? fixing the elements options, send a request, building the flutter interaction with response
+#Building the post function to send results to server
+#Receiving results and generating a cool report with them.
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
@@ -131,7 +144,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+# USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)

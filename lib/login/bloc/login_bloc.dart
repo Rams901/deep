@@ -9,7 +9,8 @@ import 'package:equatable/equatable.dart';
 part 'login_event.dart';
 part 'login_state.dart';
 
-class LoginBloc extends Bloc<LoginEvent, LoginState> {
+class LoginBloc extends Bloc<LoginEvent, LoginState> 
+{
   final UserRepository userRepository;
   final AuthenticationBloc authenticationBloc;
 
@@ -18,16 +19,16 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     required this.authenticationBloc,
   })  : assert(userRepository != null),
         assert(authenticationBloc != null),
-        super(LoginInitial())
-  ;
+        super(LoginInitial());
 
   @override
   Stream<LoginState> mapEventToState(
       LoginEvent event,
-      ) async* {
+      ) async* //this 
+  {
     if (event is LoginButtonPressed) {
+      
       yield LoginInitial();
-
       try {
         final user = await userRepository.authenticate(
           username: event.username,
@@ -36,9 +37,31 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
         authenticationBloc.add(LoggedIn(user: user));
         yield LoginInitial();
-      } catch (error) {
+      }
+      catch (error) {
         yield LoginFaliure(error: error.toString());
       }
+
     }
+    // if (event is SignUpButtonPressed) 
+    // {
+      
+    //   yield LoginInitial();
+      
+    //   //try using this, else just like question api
+
+    //   try {
+
+        
+
+    //     authenticationBloc.add(LoggedIn(user: new_user));
+    //     yield LoginInitial();
+
+    //   }
+    //   catch (error) 
+    //   {
+    //     yield LoginFaliure(error: error.toString());
+    //   }
+    // }
   }
 }

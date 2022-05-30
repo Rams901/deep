@@ -7,7 +7,26 @@ import 'package:deeptherapy/dao/user_dao.dart';
 
 class UserRepository {
   final userDao = UserDao();
-
+  Future  signup ({
+    required String username,
+    required String password,
+    required String title,
+    required String country,
+    required String phone,
+    required String email
+    
+  }) async {
+    DocSignUp doc = DocSignUp(
+      username: username,
+    password: password,
+    title: title,
+    country: country,
+    phone: phone,
+    email:email
+    );
+    int response = await SignUp(doc);
+    return response;
+  }
   Future<User> authenticate ({
     required String username,
     required String password,
@@ -16,12 +35,14 @@ class UserRepository {
         username: username,
         password: password
     );
+
     Token token = await getToken(userLogin);
     User user = User(
       id: 0,
       username: username,
       token: token.token,
     );
+    print(user);
     print("GET TOKEN DONE");
     return user;
   }

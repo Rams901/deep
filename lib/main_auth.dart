@@ -8,11 +8,12 @@ import 'package:deeptherapy/home/home.dart';
 import 'package:deeptherapy/common/common.dart';
 
 void main() {
-  final userRepository = UserRepository();
+  
   
   runApp(
       BlocProvider<AuthenticationBloc>(
         create: (context) {
+          final userRepository = UserRepository();
           return AuthenticationBloc(
               userRepository: userRepository
           )..add(AppStarted());

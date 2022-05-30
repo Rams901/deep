@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:deeptherapy/login/bloc/login_bloc.dart';
-
+import '../Signup/SignupDoc2.dart';
 class LoginForm extends StatefulWidget {
   @override
   State<LoginForm> createState() => _LoginFormState();
 }
-
+//Integrate everything, check why auth is not working, try it on patient, generate code, make doctor username global?, access patient with gen code, put quiz thingies inside the app, change colors
 class _LoginFormState extends State<LoginForm> {
   final _userController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    
     _onLoginButtonPressed() {
       BlocProvider.of<LoginBloc>(context).add(LoginButtonPressed(
         username: _userController.text,
         password: _passwordController.text,
       ));
+      print("we made it");
     }
 
     return BlocListener<LoginBloc, LoginState>(
@@ -35,7 +37,6 @@ class _LoginFormState extends State<LoginForm> {
       
 
  body: Container( margin: const EdgeInsets.only(top: 20),
-
    child:
  Column(
     children: [Expanded(child: Image.asset("../assets/images/deep.png",
@@ -65,7 +66,7 @@ color: Colors.black54,fontSize: 25),
 
   
       Container(width: 420,padding: EdgeInsets.all(16), child: Column(children: [
-                  TextFormField(decoration: InputDecoration(labelText: 'Email'),
+                  TextFormField(decoration: InputDecoration(labelText: 'username'),
                    keyboardType: TextInputType.name, controller: _userController,), TextFormField(controller: _passwordController, obscureText: true,decoration: InputDecoration(labelText: 'Enter Password'),
                 
 
@@ -94,10 +95,11 @@ color: Colors.black54,fontSize: 25),
                     'Sign up',
                     style: TextStyle(fontSize: 15),
                   ),
-                  onPressed: state is! LoginLoading
-                              ? _onLoginButtonPressed
-                              : null,
-                )
+                  onPressed: (){Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const SignupDoc2()),
+  );
+        })
               ],
               mainAxisAlignment: MainAxisAlignment.center,
             ),

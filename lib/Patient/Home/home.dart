@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:deeptherapy/Patient/widgets/bottom_nav_bar.dart';
 import 'package:deeptherapy/Patient/widgets/category_card.dart';
-import 'package:deeptherapy/Patient/widgets/constants.dart';
+import 'package:deeptherapy/constants.dart';
 import '../motivation_space/motivation.dart';
 
 class HomeScreen extends StatelessWidget {

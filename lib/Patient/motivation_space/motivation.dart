@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:deeptherapy/Patient/quote_space/QuoteSpace.dart';
 import 'package:deeptherapy/Patient/widgets/bottom_nav_bar.dart';
-import 'package:deeptherapy/Patient/widgets/constants.dart';
+import 'package:deeptherapy/constants.dart';
 
 
 class motivation extends StatelessWidget {

@@ -25,7 +25,7 @@ class AuthenticationBloc
     AuthenticationEvent event,
   ) async* {
     if (event is AppStarted) {
-
+      print("aye");
       final bool hasToken = await userRepository.hasToken();
       print(hasToken);
       if (hasToken) {
@@ -39,16 +39,17 @@ class AuthenticationBloc
       yield AuthenticationLoading();
       print("event: $event");
       print(event.user);
-      await userRepository.persistToken(
-        user: event.user
-      );
+      // await userRepository.persistToken(
+      //   user: event.user
+      // );
+
       yield AuthenticationAuthenticated();
     }
 
     if (event is LoggedOut) {
       yield AuthenticationLoading();
 
-      await userRepository.deleteToken(id: 0);
+      // await userRepository.deleteToken(id: 0);
 
       yield AuthenticationUnauthenticated();
     }

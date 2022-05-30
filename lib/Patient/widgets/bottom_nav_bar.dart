@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'constants.dart';
+import '../../constants.dart';
 
 class BottomNavBar extends StatelessWidget {
   const BottomNavBar({
@@ -18,22 +18,24 @@ class BottomNavBar extends StatelessWidget {
         children: <Widget>[
           BottomNavItem(
             title: "Home",
-            svgScr: "assets/icons/home.svg", 
+            svgScr: "lib/assets/icons/home01.svg", 
+            isActive: true,
           ),
           BottomNavItem(
             title: "chat",
-            svgScr: "assets/icons/search.svg",
-            isActive: true,
+            svgScr: "lib/assets/icons/chat01.svg",
+            
           ),
            BottomNavItem(
             title: "Quiz",
-            svgScr: "assets/icons/Quizicon.svg",
-            isActive: true,
+            svgScr: "lib/assets/icons/quiz.svg",
+           
           ),
            BottomNavItem(
             title: "profile",
-            svgScr: "assets/icons/profil.svg",
-            isActive: true,
+            svgScr: "lib/assets/icons/user01.svg",
+    
+            
           ),
 
           
@@ -60,19 +62,19 @@ class BottomNavItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: (){press;},
-      child: Column(
+      child: Container(width: 65,child:Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          SvgPicture.asset(
-            svgScr,
-            color: isActive ? kBlueLightColor : kTextColor,
+          SvgPicture.asset(svgScr,width: 35, height: 40,
+            color: isActive ?  kTextColor : kBlueLightColor,
           ),
           Text(
             title!,
-            style: TextStyle(color: isActive ? kBlueLightColor : kTextColor),
+            style: TextStyle(color: isActive ?   kTextColor
+            :kBlueLightColor),
           ),
         ],
-      ),
+      ), color: isActive? Colors.grey[350] : Colors.white),
     );
   }
 }

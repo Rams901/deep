@@ -39,7 +39,7 @@ color: Colors.black54,fontSize: 25),
 
   
       Container(width: 420,padding: EdgeInsets.all(16), child: Column(children: [
-                  TextFormField(decoration: InputDecoration(labelText: 'Email'),
+                  TextFormField(decoration: InputDecoration(labelText: 'username'),
                    keyboardType: TextInputType.name), TextFormField(obscureText: true,decoration: InputDecoration(labelText: 'Enter Password'),
                 
 
